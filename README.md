@@ -15,6 +15,7 @@
 
 ![Maintained](https://img.shields.io/badge/Maintained%3F-yes-green.svg?style=for-the-badge)
 ![MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)
+[![Run Python Script](https://github.com/jojogamezHub/MS-Farmer-Ultimate/actions/workflows/Farm.yml/badge.svg)](https://github.com/jojogamezHub/MS-Farmer-Ultimate/actions/workflows/Farm.yml)
 
 ## :wave: Welcome to the future of automation
 
