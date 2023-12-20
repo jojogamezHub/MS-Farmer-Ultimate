@@ -31,7 +31,7 @@ class Activities:
 
     def completeSurvey(self):
         self.webdriver.find_element(By.ID, f"btoption{random.randint(0, 1)}").click()
-        time.sleep(random.randint(6, 12))
+        time.sleep(random.randint(10, 15))
         self.browser.utils.closeCurrentTab()
 
     def completeQuiz(self):
