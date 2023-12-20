@@ -86,7 +86,7 @@ class Searches:
                 searchbar.clear()
                 searchbar.send_keys(word)
                 searchbar.submit()
-                time.sleep(random.randint(6, 12))
+                time.sleep(random.randint(10, 15))
                 return self.browser.utils.getBingAccountPoints()
             except TimeoutException:
                 if i == 5:
