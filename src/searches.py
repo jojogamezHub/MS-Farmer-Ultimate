@@ -58,6 +58,7 @@ class Searches:
         self.webdriver.get("https://bing.com")
 
         for word in search_terms:
+            if i % 4 == 0: time.sleep(900)
             i += 1
             logging.info("[BING] " + f"{i}/{numberOfSearches}")
             points = self.bingSearch(word)
@@ -86,7 +87,7 @@ class Searches:
                 searchbar.clear()
                 searchbar.send_keys(word)
                 searchbar.submit()
-                time.sleep(random.randint(10, 15))
+                time.sleep(random.randint(360, 900))
                 return self.browser.utils.getBingAccountPoints()
             except TimeoutException:
                 if i == 5:
