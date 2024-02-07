@@ -128,10 +128,13 @@ def setupAccounts() -> dict:
     random.shuffle(loadedAccounts)
     return loadedAccounts
 
+def sensor_username(username):
+    # Replace all characters in the username except the first letter with asterisks
+    return username[0] + '*' * (len(username) - 1)
 
 def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
     logging.info(
-        f'********************{ currentAccount.get("username", "") }********************'
+        f'********************{sensor_username(currentAccount.get("username", ""))}********************'
     )
     with Browser(mobile=False, account=currentAccount, args=args) as desktopBrowser:
         accountPointsCounter = Login(desktopBrowser).login()
@@ -169,11 +172,14 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
             f"[POINTS] You are now at {desktopBrowser.utils.formatNumber(accountPointsCounter)} points !\n"
         )
 
+
+
+        
         notifier.send(
             "\n".join(
                 [
                     "Microsoft Rewards Farmer",
-                    f"Account: {currentAccount.get('username', '')}",
+                    f'********************{sensor_username(currentAccount.get("username", ""))}********************',  
                     f"Points earned today: {desktopBrowser.utils.formatNumber(accountPointsCounter - startingPoints)}",
                     f"Total points: {desktopBrowser.utils.formatNumber(accountPointsCounter)}",
                 ]
