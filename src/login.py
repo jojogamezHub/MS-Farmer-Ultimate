@@ -16,28 +16,25 @@ class Login:
 
     def login(self):
         logging.info("[LOGIN] " + "Logging-in...")
-        self.webdriver.get(
-            "https://rewards.bing.com/Signin/"
-        )  # changed site to allow bypassing when M$ blocks access to login.live.com randomly
+        self.webdriver.get("https://login.live.com/")
         alreadyLoggedIn = False
         while True:
             try:
                 self.utils.waitUntilVisible(
-                    By.CSS_SELECTOR, 'html[data-role-name="RewardsPortal"]', 0.1
+                    By.CSS_SELECTOR, 'html[data-role-name="MeePortal"]', 0.1
                 )
                 alreadyLoggedIn = True
                 break
             except Exception:  # pylint: disable=broad-except
                 try:
-                    self.utils.waitUntilVisible(By.ID, "loginHeader", 0.1)
+                    self.utils.waitUntilVisible(By.ID, "i0116", 0.1)
                     break
                 except Exception:  # pylint: disable=broad-except
                     if self.utils.tryDismissAllMessages():
                         continue
 
         if not alreadyLoggedIn:
-            if isLocked := self.executeLogin():
-                return "Locked"
+            self.executeLogin()
         self.utils.tryDismissCookieBanner()
 
         logging.info("[LOGIN] " + "Logged-in !")
@@ -45,14 +42,14 @@ class Login:
         self.utils.goHome()
         points = self.utils.getAccountPoints()
 
-        logging.info("[LOGIN] " + "Ensuring you are logged into Bing...")
+        logging.info("[LOGIN] " + "Ensuring login on Bing...")
         self.checkBingLogin()
         logging.info("[LOGIN] Logged-in successfully !")
         return points
 
     def executeLogin(self):
-        self.utils.waitUntilVisible(By.ID, "loginHeader", 10)
-        logging.info("[LOGIN] " + "Entering email...")
+        self.utils.waitUntilVisible(By.ID, "i0116", 10)
+        logging.info("[LOGIN] " + "Writing email...")
         self.webdriver.find_element(By.NAME, "loginfmt").send_keys(
             self.browser.username
         )
@@ -61,27 +58,26 @@ class Login:
         try:
             self.enterPassword(self.browser.password)
         except Exception:  # pylint: disable=broad-except
-            logging.error("[LOGIN] " + "2FA Code required !")
+            logging.error("[LOGIN] " + "2FA required !")
             with contextlib.suppress(Exception):
                 code = self.webdriver.find_element(
                     By.ID, "idRemoteNGC_DisplaySign"
                 ).get_attribute("innerHTML")
-                logging.error(f"[LOGIN] 2FA code: {code}")
-            logging.info("[LOGIN] Press enter when confirmed on your device...")
+                logging.error("[LOGIN] " + f"2FA code: {code}")
+            logging.info("[LOGIN] Press enter when confirmed...")
             input()
 
         while not (
             urllib.parse.urlparse(self.webdriver.current_url).path == "/"
             and urllib.parse.urlparse(self.webdriver.current_url).hostname
-            in ("account.microsoft.com", "rewards.bing.com")
+            == "account.microsoft.com"
         ):
-            if "Abuse" in str(self.webdriver.current_url):
-                logging.error(f"[LOGIN] {self.browser.username} is locked")
-                return True
             self.utils.tryDismissAllMessages()
             time.sleep(1)
 
-        time.sleep(10)
+        self.utils.waitUntilVisible(
+            By.CSS_SELECTOR, 'html[data-role-name="MeePortal"]', 10
+        )
 
     def enterPassword(self, password):
         self.utils.waitUntilClickable(By.NAME, "passwd", 10)
@@ -89,11 +85,19 @@ class Login:
         # browser.webdriver.find_element(By.NAME, "passwd").send_keys(password)
         # If password contains special characters like " ' or \, send_keys() will not work
         password = password.replace("\\", "\\\\").replace('"', '\\"')
-        self.webdriver.execute_script(
-            f'document.getElementsByName("passwd")[0].value = "{password}";'
-        )
         logging.info("[LOGIN] " + "Writing password...")
-        self.webdriver.find_element(By.ID, "idSIButton9").click()
+       
+        password_field = self.webdriver.find_element(By.NAME, "passwd")
+
+        while True:
+            password_field.send_keys(password)
+            time.sleep(3)
+            if password_field.get_attribute("value") == password:
+                self.webdriver.find_element(By.ID, "idSIButton9").click()
+                break
+
+            password_field.clear()
+            time.sleep(3)
         time.sleep(3)
 
     def checkBingLogin(self):
